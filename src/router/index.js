@@ -328,6 +328,7 @@ export const asyncRoutes = [
   {
     path: '/icon',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -349,6 +350,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/example/list',
     name: 'Example',
+    hidden: true,
     meta: {
       title: 'Example',
       icon: 'example'
@@ -379,6 +381,7 @@ export const asyncRoutes = [
   {
     path: '/tab',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -394,6 +397,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: 'noRedirect',
     name: 'ErrorPages',
+    hidden: true,
     meta: {
       title: 'Error Pages',
       icon: '404'
@@ -417,6 +421,7 @@ export const asyncRoutes = [
   {
     path: '/error-log',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'log',
@@ -430,6 +435,7 @@ export const asyncRoutes = [
   {
     path: '/excel',
     component: Layout,
+    hidden: true,
     redirect: '/excel/export-excel',
     name: 'Excel',
     meta: {
@@ -469,6 +475,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/zip/download',
     alwaysShow: true,
+    hidden: true,
     name: 'Zip',
     meta: { title: 'Zip', icon: 'zip' },
     children: [
@@ -485,6 +492,7 @@ export const asyncRoutes = [
     path: '/pdf',
     component: Layout,
     redirect: '/pdf/index',
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -503,6 +511,7 @@ export const asyncRoutes = [
   {
     path: '/theme',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -516,6 +525,7 @@ export const asyncRoutes = [
   {
     path: '/clipboard',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
