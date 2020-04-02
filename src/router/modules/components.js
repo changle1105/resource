@@ -7,7 +7,6 @@ const componentsRouter = {
   component: Layout,
   redirect: 'noRedirect',
   name: 'ComponentDemo',
-  hidden: true,
   meta: {
     title: 'Components',
     icon: 'component'

@@ -289,8 +289,9 @@ export const asyncRoutes = [
         path: 'page',
         component: () => import('@/views/permission/page'),
         name: 'PagePermission',
+        hidden: true,
         meta: {
-          title: '资源审核权限',
+          title: '角色权限设定',
           roles: ['admin'] // or you can only set roles in sub nav
         }
       },
@@ -309,7 +310,7 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/role'),
         name: 'RolePermission',
         meta: {
-          title: '角色权限设定',
+          title: '资源审核权限管理',
           roles: ['admin']
         }
       }
@@ -435,7 +436,6 @@ export const asyncRoutes = [
   {
     path: '/excel',
     component: Layout,
-    hidden: true,
     redirect: '/excel/export-excel',
     name: 'Excel',
     meta: {

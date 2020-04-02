@@ -45,6 +45,14 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
+        title: {
+          text: '资源上传统计',
+          left: 'center',
+          textStyle: {
+            color: '#cccccc'
+          }
+        },
+
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -52,7 +60,7 @@ export default {
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          data: ['微课资源', '视频资源', '技术文献', '精品课程', '满意课堂']
         },
         series: [
           {
@@ -62,11 +70,11 @@ export default {
             radius: [15, 95],
             center: ['50%', '38%'],
             data: [
-              { value: 320, name: 'Industries' },
-              { value: 240, name: 'Technology' },
-              { value: 149, name: 'Forex' },
-              { value: 100, name: 'Gold' },
-              { value: 59, name: 'Forecasts' }
+              { value: 320, name: '微课资源' },
+              { value: 240, name: '视频资源' },
+              { value: 149, name: '技术文献' },
+              { value: 100, name: '精品课程' },
+              { value: 59, name: '满意课堂' }
             ],
             animationEasing: 'cubicInOut',
             animationDuration: 2600
