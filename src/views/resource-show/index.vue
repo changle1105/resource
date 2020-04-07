@@ -152,6 +152,7 @@ export default {
   },
   created() {
     this.getList()
+    console.log(this.$route.params)
   },
   methods: {
     getList() {

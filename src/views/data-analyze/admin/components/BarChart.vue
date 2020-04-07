@@ -6,8 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
-
-const animationDuration = 6000
+import { getStatistic_Detail } from '../../../../api/resource'
 
 export default {
   mixins: [resize],
@@ -22,15 +21,89 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '360px'
     }
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      data1: [],
+      data2: [],
+      data3: [],
+      colname: [],
+      option: {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
+        },
+        legend: {
+          data: ['资源总数', '浏览总数', '收藏总数']
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'value'
+        },
+        yAxis: {
+          type: 'category',
+          data: []
+        },
+        series: [
+          {
+            name: '资源总数',
+            type: 'bar',
+            stack: '总量',
+            label: {
+              show: true,
+              position: 'insideRight'
+            },
+            data: []
+          },
+          {
+            name: '浏览总数',
+            type: 'bar',
+            stack: '总量',
+            label: {
+              show: true,
+              position: 'insideRight'
+            },
+            data: []
+          },
+          {
+            name: '收藏总数',
+            type: 'bar',
+            stack: '总量',
+            label: {
+              show: true,
+              position: 'insideRight'
+            },
+            data: []
+          }
+        ]
+      }
     }
   },
+  watch: {
+    colname: function(newVal, oldVal) {
+      this.option.yAxis.data = this.colname
+      this.option.series[0].data = this.data1
+      this.option.series[1].data = this.data2
+      this.option.series[2].data = this.data3
+      this.chart.setOption(this.option)
+    },
+    immediate: true,
+    deep: true
+  },
+  created() {
+  },
   mounted() {
+    this.fechData()
     this.$nextTick(() => {
       this.initChart()
     })
@@ -43,59 +116,27 @@ export default {
     this.chart = null
   },
   methods: {
+    fechData() {
+      getStatistic_Detail().then(res => {
+        this.data1 = this.getArrayProps(res.data.files, 'number')
+        this.data2 = this.getArrayProps(res.data.visits, 'number')
+        this.data3 = this.getArrayProps(res.data.collects, 'number')
+        this.colname = this.getArrayProps(res.data.collects, 'type_name')
+      })
+    },
+    getArrayProps(array, key) {
+      var key1 = key || 'value'
+      var res = []
+      if (array) {
+        array.forEach(function(t) {
+          res.push(t[key1])
+        })
+      }
+      return res
+    },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
-
-      this.chart.setOption({
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: { // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
-          }
-        },
-        grid: {
-          top: 10,
-          left: '2%',
-          right: '2%',
-          bottom: '3%',
-          containLabel: true
-        },
-        xAxis: [{
-          type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-          axisTick: {
-            alignWithLabel: true
-          }
-        }],
-        yAxis: [{
-          type: 'value',
-          axisTick: {
-            show: false
-          }
-        }],
-        series: [{
-          name: 'pageA',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [79, 52, 200, 334, 390, 330, 220],
-          animationDuration
-        }, {
-          name: 'pageB',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [80, 52, 200, 334, 390, 330, 220],
-          animationDuration
-        }, {
-          name: 'pageC',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [30, 52, 200, 334, 390, 330, 220],
-          animationDuration
-        }]
-      })
+      this.chart.setOption(this.option)
     }
   }
 }

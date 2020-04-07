@@ -19,11 +19,11 @@ export default {
   data() {
     return {
       tabMapOptions: [
-        { label: '浏览排行榜', key: 'CN' },
-        { label: '收藏排行榜', key: 'US' },
-        { label: '最新上传榜', key: 'JP' }
+        { label: '浏览排行榜', key: 'visit' },
+        { label: '收藏排行榜', key: 'collect' },
+        { label: '最新上传榜', key: 'upload' }
       ],
-      activeName: 'CN',
+      activeName: 'visit',
       createdTimes: 0
     }
   },

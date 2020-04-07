@@ -73,10 +73,10 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/data-analyze',
     children: [
       {
-        path: 'dashboard',
+        path: 'data-analyze',
         component: () => import('@/views/data-analyze/index'),
         name: 'DataAnalyze',
         meta: { title: '资源数据分析', icon: 'dashboard', affix: true }

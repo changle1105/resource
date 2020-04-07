@@ -9,7 +9,7 @@
           <div class="card-panel-text">
             资源总数
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="filesNum" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -22,7 +22,7 @@
           <div class="card-panel-text">
             浏览总数
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="visitNum" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -35,7 +35,7 @@
           <div class="card-panel-text">
             收藏总数
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="collectNum" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -57,14 +57,31 @@
 
 <script>
 import CountTo from 'vue-count-to'
-
+import { getStatistic } from '../../../../api/resource'
 export default {
   components: {
     CountTo
   },
+  data() {
+    return {
+      filesNum: 0,
+      visitNum: 0,
+      collectNum: 0
+    }
+  },
+  mounted() {
+    this.fechData()
+  },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    fechData() {
+      getStatistic().then(res => {
+        this.filesNum = res.data.files_num
+        this.visitNum = res.data.visit_num
+        this.collectNum = res.data.collect_num
+      })
     }
   }
 }

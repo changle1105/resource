@@ -6,6 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
+import { getStatistic_Detail } from '../../../../api/resource'
 
 export default {
   mixins: [resize],
@@ -33,7 +34,10 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      data1: [],
+      data2: [],
+      data3: []
     }
   },
   watch: {
@@ -46,6 +50,8 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
+      this.fechData()
+      console.log(this.data1)
       this.initChart()
     })
   },
@@ -60,6 +66,23 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
+    },
+    fechData() {
+      getStatistic_Detail().then(res => {
+        this.data1 = this.getArrayProps(res.data.files, 'number')
+        this.data2 = this.getArrayProps(res.data.visits, 'number')
+        this.data3 = this.getArrayProps(res.data.collects, 'number')
+      })
+    },
+    getArrayProps(array, key) {
+      var key1 = key || 'value'
+      var res = []
+      if (array) {
+        array.forEach(function(t) {
+          res.push(t[key1])
+        })
+      }
+      return res
     },
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
@@ -104,7 +127,7 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: expectedData,
+          data: this.data1,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
@@ -124,7 +147,27 @@ export default {
               }
             }
           },
-          data: actualData,
+          data: this.data2,
+          animationDuration: 2800,
+          animationEasing: 'quadraticOut'
+        },
+        {
+          name: 'actual',
+          smooth: true,
+          type: 'line',
+          itemStyle: {
+            normal: {
+              color: '#3888fa',
+              lineStyle: {
+                color: '#3888fa',
+                width: 2
+              },
+              areaStyle: {
+                color: '#f3f8ff'
+              }
+            }
+          },
+          data: this.data3,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
         }]
