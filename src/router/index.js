@@ -111,7 +111,7 @@ export const asyncRoutes = [
     meta: {
       title: '资源浏览',
       icon: 'lock',
-      roles: ['admin', 'editor'] // you can set roles in root nav
+      roles: ['admin', 'editor', 'teacher', 'student'] // you can set roles in root nav
     },
     children: [
       {
@@ -120,7 +120,8 @@ export const asyncRoutes = [
         name: 'WeiKe',
         meta: {
           title: '微课资源',
-          roles: ['admin'] // or you can only set roles in sub nav
+          type_id: 1,
+          roles: ['admin', 'editor', 'teacher', 'student'] // or you can only set roles in sub nav
         }
       },
       {
@@ -128,8 +129,9 @@ export const asyncRoutes = [
         component: () => import('@/views/resource-show/index'),
         name: 'Video',
         meta: {
-          title: '视频资源'
-          // if do not set roles, means: this page does not require permission
+          title: '视频资源',
+          type_id: 2,
+          roles: ['admin', 'editor', 'teacher', 'student']
         }
       },
       {
@@ -138,7 +140,8 @@ export const asyncRoutes = [
         name: 'classical',
         meta: {
           title: '精品课程',
-          roles: ['admin']
+          type_id: 4,
+          roles: ['admin', 'editor', 'teacher']
         }
       },
       {
@@ -147,7 +150,8 @@ export const asyncRoutes = [
         name: 'Papper',
         meta: {
           title: '技术文献',
-          roles: ['admin']
+          type_id: 5,
+          roles: ['admin', 'editor', 'teacher', 'student']
         }
       },
       {
@@ -156,7 +160,8 @@ export const asyncRoutes = [
         name: 'SatisfactoryClassroom',
         meta: {
           title: '满意课堂',
-          roles: ['admin']
+          type_id: 6,
+          roles: ['admin', 'editor', 'teacher']
         }
       },
       {
@@ -165,7 +170,8 @@ export const asyncRoutes = [
         name: 'Assessment',
         meta: {
           title: '专业评估',
-          roles: ['admin']
+          type_id: 3,
+          roles: ['admin', 'editor', 'teacher']
         }
       },
       {
@@ -174,7 +180,8 @@ export const asyncRoutes = [
         name: 'Communication',
         meta: {
           title: '院本交流',
-          roles: ['admin']
+          type_id: 7,
+          roles: ['admin', 'editor', 'teacher']
         }
       },
       {
@@ -183,7 +190,8 @@ export const asyncRoutes = [
         name: 'Project',
         meta: {
           title: '院本课题',
-          roles: ['admin']
+          type_id: 8,
+          roles: ['admin', 'editor', 'teacher']
         }
       }
     ]
@@ -196,7 +204,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/icons/index'),
         name: 'MosoTeach',
-        meta: { title: '蓝墨资源', icon: 'icon', roles: ['admin'], noCache: true }
+        meta: { title: '蓝墨资源', icon: 'icon', roles: ['admin', 'editor', 'teacher', 'student'], noCache: true }
       }
     ]
   },
