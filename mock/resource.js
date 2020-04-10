@@ -131,6 +131,120 @@ export default [
     }
   },
   {
+    url: '/resouce/manage_list',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'total': 100,
+          'items|10': [
+            {
+              'resource_id|6-8': '',
+              'resource_name': '@title(5, 10)',
+              'course_id|6-8': '',
+              'course_name': '@first',
+              'type_id|6-8': '',
+              'type_name': '@first',
+              'subject_id|6-8': '',
+              'subject_name': '@first',
+              'upload_date': '@datetime',
+              'description|6-8': '',
+              'scan_count': '@integer(1, 100)',
+              'collect_count': 10,
+              'verifydate': '',
+              'verify_user': '',
+              'owner_id': '',
+              'uploader_id': '',
+              'uploader_name': '@first',
+              'verify_advice': '',
+              'download_count': 10,
+              'ml_id': '',
+              'collect_date': ''
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/collect_list',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'total': 100,
+          'items|10': [
+            {
+              'resource_id|6-8': '',
+              'resource_name': '@title(5, 10)',
+              'course_id|6-8': '',
+              'course_name': '@first',
+              'type_id|6-8': '',
+              'type_name': '@first',
+              'subject_id|6-8': '',
+              'subject_name': '@first',
+              'upload_date': '@datetime',
+              'description|6-8': '',
+              'scan_count': '@integer(1, 100)',
+              'collect_count': 10,
+              'verifydate': '',
+              'verify_user': '',
+              'owner_id': '',
+              'uploader_id': '',
+              'uploader_name': '@first',
+              'verify_advice': '',
+              'download_count': 10,
+              'ml_id': '',
+              'collect_date': ''
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/history_list',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'total': 100,
+          'items|10': [
+            {
+              'resource_id|6-8': '',
+              'resource_name': '@title(5, 10)',
+              'course_id|6-8': '',
+              'course_name': '@first',
+              'type_id|6-8': '',
+              'type_name': '@first',
+              'subject_id|6-8': '',
+              'subject_name': '@first',
+              'upload_date': '@datetime',
+              'description|6-8': '',
+              'scan_count': '@integer(1, 100)',
+              'collect_count': 10,
+              'verifydate': '',
+              'verify_user': '',
+              'owner_id': '',
+              'uploader_id': '',
+              'uploader_name': '@first',
+              'verify_advice': '',
+              'download_count': 10,
+              'ml_id': '',
+              'collect_date': ''
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
     url: '/resouce/typelist',
     type: 'get',
     response: config => {
@@ -183,7 +297,38 @@ export default [
     }
   },
   {
+    url: '/resouce/delete_collect',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': 1
+      }
+    }
+  },
+  {
     url: '/resouce/delete',
+    type: 'post',
+    response: _ => {
+      return {
+        code: 20000,
+        data: 1
+      }
+    }
+  },
+  {
+    url: '/resouce/add',
+    type: 'post',
+    response: _ => {
+      return {
+        code: 20000,
+        data: 1
+      }
+    }
+  },
+  {
+    url: '/resouce/update',
     type: 'post',
     response: _ => {
       return {

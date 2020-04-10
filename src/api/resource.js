@@ -25,7 +25,27 @@ export function getResourceList(query) {
     params: query
   })
 }
-
+export function getManageList(query) {
+  return request({
+    url: '/resouce/manage_list',
+    method: 'post',
+    params: query
+  })
+}
+export function getCollectList(query) {
+  return request({
+    url: '/resouce/collect_list',
+    method: 'post',
+    params: query
+  })
+}
+export function getHistoryList(query) {
+  return request({
+    url: '/resouce/history_list',
+    method: 'post',
+    params: query
+  })
+}
 export function getSubjectList(query) {
   return request({
     url: '/resouce/subjectlist',
@@ -51,6 +71,27 @@ export function getDetail(query) {
 export function deleteResource(query) {
   return request({
     url: '/resouce/delete',
+    method: 'post',
+    params: query
+  })
+}
+export function addResource(query) {
+  return request({
+    url: '/resouce/add',
+    method: 'post',
+    params: query
+  })
+}
+export function updateResource(query) {
+  return request({
+    url: '/resouce/add',
+    method: 'post',
+    params: query
+  })
+}
+export function deleteCollect(query) {
+  return request({
+    url: '/resouce/delete_collect',
     method: 'post',
     params: query
   })

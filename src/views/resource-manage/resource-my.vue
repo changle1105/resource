@@ -74,26 +74,26 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="类型或专区" prop="type">
+      <el-form ref="dataForm" :model="temp" :rules="rules" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="类型或专区" prop="type_id">
           <el-select v-model="temp.type_id" placeholder="专区或类别" class="filter-item" style="width: 300px" @change="handleTypeSelect">
             <el-option v-for="item in listType" :key="item.type_id" :label="item.type_name" :value="item.type_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="学科或分类" prop="type">
+        <el-form-item label="学科或分类" prop="subject_id">
           <el-select v-model="temp.subject_id" placeholder="学科或分类" class="filter-item" style="width: 300px" @change="handleSubjectSelect">
             <el-option v-for="item in listSubject" :key="item.subject_id" :label="item.subject_name" :value="item.subject_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="课程或目录" prop="type">
+        <el-form-item label="课程或目录" prop="course_name">
           <el-select v-model="temp.course_name" filterable placeholder="课程或目录" class="filter-item" style="width: 100%" @blur="selectBlur">
             <el-option v-for="item in listCourse" :key="item.course_name" :label="item.course_name" :value="item.course_name" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="dialogStatus=='create'" label="上传附件" prop="type">
+        <el-form-item v-if="dialogStatus=='create'" label="上传附件">
           <el-upload
             ref="uploadExcel"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action="http://localhost:9527/dev-api/resouce/add"
             :limit="limitNum"
             :auto-upload="false"
             :before-upload="beforeUploadFile"
@@ -105,7 +105,7 @@
           >
             <el-button size="small" plain>选择文件</el-button>
           </el-upload></el-form-item>
-        <el-form-item v-if="dialogStatus=='update'" label="资源名称" prop="title">
+        <el-form-item v-if="dialogStatus=='update'" label="资源名称">
           <el-input v-model="temp.resource_name" />
         </el-form-item>
         <el-form-item label="备注">
@@ -129,15 +129,14 @@
         <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="dialogPvVisible = false">保存</el-button>
+        <el-button type="primary" @click="updateData">保存</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getResourceList, getSubjectList, getCourseList, getTypeList, deleteResource, getDetail } from '@/api/resource'
-import { fetchPv, createArticle, updateArticle } from '@/api/article'
+import { getResourceList, getSubjectList, getCourseList, getTypeList, deleteResource, getDetail, updateResource } from '@/api/resource'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -174,6 +173,7 @@ export default {
         subject_id: undefined,
         course_name: undefined,
         description: '',
+        uploader_name: '',
         sort: ' upload_date desc '
       },
       showReviewer: false,
@@ -207,6 +207,11 @@ export default {
         update: '修改资源',
         create: '上传资源'
       },
+      rules: {
+        type_id: [{ required: true, message: '请选择', trigger: 'blur' }],
+        subject_id: [{ required: true, message: '请选择', trigger: 'blur' }],
+        course_name: [{ required: true, message: '请选择', trigger: 'blur' }]
+      },
       dialogPvVisible: false,
       pvData: [],
       downloadLoading: false
@@ -218,6 +223,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
+      this.listQuery.uploader_name = this.$store.state.user.name
       getResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
@@ -271,24 +277,6 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       getDetail(this.temp.resource_id).then(res => {
@@ -312,25 +300,16 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateResource(tempData).then(() => {
             this.dialogFormVisible = false
             this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
+              title: '提示',
+              message: '更新成功',
               type: 'success',
               duration: 2000
             })
           })
         }
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     handleDownload() {
@@ -429,7 +408,21 @@ export default {
       })
     },
     uploadFile() {
-      this.$refs.uploadExcel.submit()
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.temp.uploader_id = this.$store.state.name
+          this.$refs.uploadExcel.submit()
+        }
+      })
+      this.$refs.uploadExcel.clearFiles()
+      this.temp.description = ''
+      this.temp.resource_name = ''
+      this.$notify({
+        title: '提示',
+        message: '全部上传成功',
+        type: 'success',
+        duration: 2000
+      })
     }
   }
 }
