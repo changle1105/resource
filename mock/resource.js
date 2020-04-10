@@ -80,14 +80,15 @@ export default [
       return {
         'code': 20000,
         'data': {
+          'total': 100,
           'items|10': [
             {
               'resource_id|6-8': '',
               'resource_name': '@title(5, 10)',
-              'cource_id|6-8': '',
-              'cource_name': '@first',
+              'course_id|6-8': '',
+              'course_name': '@first',
               'type_id|6-8': '',
-              'type_name|6-8': '',
+              'type_name': '@first',
               'subject_id|6-8': '',
               'subject_name': '@first',
               'upload_date': '@datetime',
@@ -103,6 +104,133 @@ export default [
               'download_count': 10,
               'ml_id': '',
               'collect_date': ''
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/subjectlist',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'total': 0,
+          'items|5': [
+            {
+              'subject_id': '@id',
+              'subject_name': '@first',
+              'number': '@integer(1,1000)'
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/typelist',
+    type: 'get',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'items|8': [
+            {
+              'type_id': '@id',
+              'type_name': '@name',
+              'file_number': '@integer(1,1000)',
+              'visit_number': '@integer(1,1000)',
+              'collect_number': '@integer(1,1000)'
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/courselist',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'total': 0,
+          'items|5': [
+            {
+              'course_id': '@id',
+              'course_name': '@first',
+              'number': '@integer(1,1000)'
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/addCollect',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': 1
+      }
+    }
+  },
+  {
+    url: '/resouce/delete',
+    type: 'post',
+    response: _ => {
+      return {
+        code: 20000,
+        data: 1
+      }
+    }
+  },
+  {
+    url: '/resouce/detail',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'resource_id': '@id',
+          'resource_name': '@name',
+          'cource_id': '@id',
+          'cource_name': '@first',
+          'type_id': '@id',
+          'type_name': '@name',
+          'subject_id': '@id',
+          'subject_name': '@name',
+          'upload_date': '@date',
+          'description': '@string',
+          'scan_count': '@integer(1,1000)',
+          'collect_count': '@integer(1,1000)',
+          'verify_date': '@date',
+          'verify_user': '',
+          'owner_id': '',
+          'uploader_id': '',
+          'uploader_name': '@first',
+          'verify_advice': '',
+          'download_count': '@integer(1,1000)',
+          'ml_id': '',
+          'appendix_list|3': [
+            {
+              'appendix_id': '@id',
+              'filename': '@name',
+              'filetype|1': [
+                'txt',
+                'doc',
+                'mp4',
+                'avi'
+              ],
+              'url': '@url'
             }
           ]
         }

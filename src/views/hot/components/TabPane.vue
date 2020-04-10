@@ -38,9 +38,7 @@
 
     <el-table-column label="操作" align="center">
       <template slot-scope="{row}">
-        <el-button type="primary" size="mini" @click="handleUpdate(row)">
-          浏览资源
-        </el-button>
+        <ShowResource :resource-id="row.resource_id " />
       </template>
     </el-table-column>
   </el-table>
@@ -48,8 +46,12 @@
 
 <script>
 import { getResourceList } from '@/api/resource.js'
+import ShowResource from '@/components/ShowResource'
 
 export default {
+  components: {
+    ShowResource
+  },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -73,7 +75,7 @@ export default {
         page: 1,
         limit: 8,
         type: this.type,
-        sort: '+id'
+        sort: ''
       },
       loading: false
     }

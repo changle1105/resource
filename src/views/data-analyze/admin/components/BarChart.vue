@@ -6,7 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
-import { getStatistic_Detail } from '../../../../api/resource'
+import { getTypeList } from '../../../../api/resource'
 
 export default {
   mixins: [resize],
@@ -117,11 +117,11 @@ export default {
   },
   methods: {
     fechData() {
-      getStatistic_Detail().then(res => {
-        this.data1 = this.getArrayProps(res.data.files, 'number')
-        this.data2 = this.getArrayProps(res.data.visits, 'number')
-        this.data3 = this.getArrayProps(res.data.collects, 'number')
-        this.colname = this.getArrayProps(res.data.collects, 'type_name')
+      getTypeList().then(res => {
+        this.data1 = this.getArrayProps(res.data.items, 'file_number')
+        this.data2 = this.getArrayProps(res.data.items, 'visit_number')
+        this.data3 = this.getArrayProps(res.data.items, 'collect_number')
+        this.colname = this.getArrayProps(res.data.items, 'type_name')
       })
     },
     getArrayProps(array, key) {

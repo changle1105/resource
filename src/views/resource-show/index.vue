@@ -2,15 +2,15 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="资源名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.type" placeholder="学科或分类" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-input v-model="listQuery.resource_name" placeholder="资源名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.subject_id" placeholder="学科或分类" clearable class="filter-item" style="width: 130px" @change="handleSubjectSelect">
+        <el-option v-for="item in listSubject" :key="item.subject_id" :label="item.subject_name+'('+item.number+')'" :value="item.subject_id" />
       </el-select>
-      <el-select v-model="listQuery.type" placeholder="所在目录" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-select v-model="listQuery.course_name" placeholder="所在目录" clearable class="filter-item" style="width: 130px">
+        <el-option v-for="item in listCourse" :key="item.course_name" :label="item.course_name+'('+item.number+')'" :value="item.course_name" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        查询
+        在 （{{ this.$route.meta.title }}）中查询
       </el-button>
     </div>
 
@@ -25,38 +25,38 @@
     >
       <el-table-column label="发布时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源名称" min-width="200px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
+          <span class="link-type" @click="showDetail(row)">{{ row.resource_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="所在目录" prop="id" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span>{{ row.course_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="学科或分类" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.subject_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="作者" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.uploader_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="访问次数" align="center" width="95">
         <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type">{{ row.pageviews }}</span>
+          <span v-if="row.scan_count" class="link-type">{{ row.scan_count }}</span>
           <span v-else>0</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" @click="showDetail(row)">
             浏览资源
           </el-button>
         </template>
@@ -65,31 +65,48 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog title="资源浏览" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="资源类型" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="发布时间" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item label="资源标题" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-        <el-form-item label="资源附件">
-          <span>附件列表</span>
-        </el-form-item>
-      </el-form>
+    <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
+      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect(tem)">我要收藏</a>）</aside>
+
+      <div v-for=" (item,index) in temp.appendix_list" :key="index">
+        <p v-if="item!=null">
+          <video
+            v-if="item.filetype==='mp4'"
+            id="myVideo"
+            controls
+            preload="auto"
+            width="100%"
+            height="100%"
+          >
+            <source
+              src="https://video.xuexi.cn/video/1005/p/21e980f38db86f00f0f8b2c7877d4449-89be429986174b96b07fdc7fcc000bcc-2.mp4"
+              type="video/mp4"
+            >
+          </video>
+        </p>
+      </div>
+      <div v-for=" (item,index) in temp.appendix_list" :key="index+50">
+        <p v-if="item!=null">
+          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}.{{ item.filetype }}</a>
+        </p>
+      </div>
+      <el-collapse>
+        <el-collapse-item title="  其它信息" name="4">
+          <div>上传者：{{ temp.uploader_name }}</div>
+          <div>类型：{{ temp.type_name }}</div>
+          <div>学科：{{ temp.subject_name }}</div>
+          <div>所属目录或者课程：{{ temp.course_name }}</div>
+          <div>上传时间：{{ temp.upload_date }}</div>
+          <div>访问次数：{{ temp.scan_count }}</div>
+          <div>收藏次数：{{ temp.collect_count }}</div>
+          <div>资源描述：{{ temp.description }}</div>
+        </el-collapse-item>
+      </el-collapse>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
+        <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button @click="dialogFormVisible = false">
+        <el-button class="pan-btn green-btn" @click="addCollect(tem)">
           收藏
         </el-button>
       </div>
@@ -98,17 +115,11 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, updateArticle } from '@/api/article'
+import { getResourceList, getSubjectList, getCourseList, getDetail, addCollect } from '@/api/resource'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
-const calendarTypeOptions = [
-  { key: '1', display_name: '信息技术类' },
-  { key: '2', display_name: '管理类' },
-  { key: '3', display_name: '机械类' },
-  { key: '4', display_name: '铁道类' }
-]
 export default {
   name: 'ResourceShow',
   components: { Pagination },
@@ -117,27 +128,41 @@ export default {
     return {
       tableKey: 0,
       list: null,
+      listSubject: null,
+      listCourse: null,
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        resource_name: undefined,
+        type_id: undefined,
+        subject_id: undefined,
+        course_name: undefined,
+        sort: ' upload_date desc '
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        resource_id: undefined,
+        resource_name: '',
+        type_id: '',
+        type_name: '',
+        subject_id: '',
+        subject_name: '',
+        course_id: '',
+        course_name: '',
+        uploader_id: '',
+        uploader_name: '',
+        description: '',
+        scan_count: 0,
+        collect_count: 0,
+        download_count: 0,
+        appendix_list: {
+          appendix_id: '',
+          filename: '',
+          filetype: '',
+          url: null
+        }
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -152,77 +177,74 @@ export default {
   },
   created() {
     this.getList()
-    console.log(this.$route.params)
   },
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      getResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      })
+      getSubjectList(this.$route.meta.type_id).then(res => {
+        this.listSubject = res.data.items
+        this.listQuery.type_id = this.$route.meta.type_id
+      })
+      this.listLoading = false
+    },
+    handleSubjectSelect() {
+      console.log(this.listQuery.subject_id)
+      getCourseList(this.listQuery.subject_id).then(res => {
+        this.listCourse = res.data.items
       })
     },
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
     },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        resource_name: '',
+        type_id: '',
+        type_name: '',
+        subject_id: '',
+        subject_name: '',
+        course_id: '',
+        course_name: '',
+        uploader_id: '',
+        uploader_name: '',
+        description: '',
+        scan_count: 0,
+        collect_count: 0,
+        download_count: 0,
+        appendix_list: {
+          filename: '',
+          filetype: '',
+          file: null
+        }
       }
     },
-    handleUpdate(row) {
+    showDetail(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      getDetail(this.temp.resource_id).then(res => {
+        this.temp = res.data // copy obj
+      })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+      console.log(this.temp)
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+    addCollect(row) {
+      addCollect(this.temp.resource_id).then(res => {
+        if (res.data === 1) {
+          this.$notify({
+            title: '提示',
+            message: '添加收藏成功',
+            type: 'success',
+            duration: 2000
           })
         }
       })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
     },
     formatJson(filterVal) {
       return this.list.map(v => filterVal.map(j => {

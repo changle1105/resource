@@ -1,249 +1,100 @@
-/* eslint-disable vue/no-unused-vars */
 <template>
-  <div class="app-container">
-    <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="资源名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.type" placeholder="学科或分类" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
-      </el-select>
-      <el-select v-model="listQuery.type" placeholder="所在目录" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
-      </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        查询
-      </el-button>
-    </div>
-
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-    >
-      <el-table-column label="发布时间" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="资源名称" min-width="200px">
-        <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="所在目录" prop="id" align="center" width="80">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="学科或分类" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="作者" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="访问次数" align="center" width="95">
-        <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type">{{ row.pageviews }}</span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            浏览
-          </el-button>
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            编辑
-          </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
-
-    <el-dialog title="资源浏览" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="资源类型" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="发布时间" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item label="资源标题" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-        <el-form-item label="资源附件">
-          <span>附件列表</span>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          取消
-        </el-button>
-      </div>
-    </el-dialog>
-  </div>
+  <el-form :model="form">
+    <el-form-item label="上传文件" :label-width="formLabelWidth">
+      <el-upload
+        ref="uploadExcel"
+        action="https://jsonplaceholder.typicode.com/posts/"
+        :limit="limitNum"
+        :auto-upload="false"
+        :before-upload="beforeUploadFile"
+        :on-change="fileChange"
+        :on-exceed="exceedFile"
+        :on-success="handleSuccess"
+        :file-list="fileList"
+        :data="listQuery"
+      >
+        <el-button size="small" plain>选择文件</el-button>
+        <div slot="tip" class="el-upload__tip">只能上传xlsx(Excel2007)文件，且不超过10M</div>
+      </el-upload>
+    </el-form-item>
+    <el-form-item>
+      <el-button size="small" type="primary" @click="uploadFile">立即上传</el-button>
+      <el-button size="small">取消</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script>
-import { fetchList, fetchPv, updateArticle } from '@/api/article'
-import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-
-const calendarTypeOptions = [
-  { key: '1', display_name: '信息技术类' },
-  { key: '2', display_name: '管理类' },
-  { key: '3', display_name: '机械类' },
-  { key: '4', display_name: '铁道类' }
-]
 export default {
-  name: 'ResourceShow',
-  components: { Pagination },
-  directives: { waves },
   data() {
     return {
-      tableKey: 0,
-      list: null,
-      total: 0,
-      listLoading: true,
+      limitNum: 5,
+      formLabelWidth: '400px',
+      form: {
+        file: ''
+      },
       listQuery: {
         page: 1,
         limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        resource_name: undefined,
+        type_id: undefined,
+        subject_id: undefined,
+        course_name: undefined,
+        sort: ' upload_date desc ',
+        listFile: undefined
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
-      showReviewer: false,
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      downloadLoading: false
+      fileList: []
     }
   },
-  created() {
-    this.getList()
-  },
   methods: {
-    getList() {
-      this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+    // 文件超出个数限制时的钩子
+    exceedFile(files, fileList) {
+      this.$notify.warning({
+        title: '警告',
+        message: `只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`
       })
     },
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      console.log('change')
+      console.log(file)
+      this.form.file = file.raw
+      console.log(this.form.file)
+      console.log(fileList)
     },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUploadFile(file) {
+      console.log('before upload')
+      console.log(file)
+      const extension = file.name.substring(file.name.lastIndexOf('.') + 1)
+      const size = file.size / 1024 / 1024
+      if (extension !== 'xlsx') {
+        this.$notify.warning({
+          title: '警告',
+          message: `只能上传Excel2017（即后缀是.xlsx）的文件`
+        })
       }
-      this.handleFilter()
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+      if (size > 10) {
+        this.$notify.warning({
+          title: '警告',
+          message: `文件大小不得超过10M`
+        })
       }
     },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+    // 文件上传成功时的钩子
+    handleSuccess(res, file, fileList) {
+      this.$notify.success({
+        title: '成功',
+        message: `文件上传成功`
       })
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: '删除操作',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
+    uploadFile() {
+      this.$refs.uploadExcel.submit()
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>

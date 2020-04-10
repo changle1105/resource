@@ -2,15 +2,18 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="资源名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.type" placeholder="学科或分类" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-input v-model="listQuery.resource_name" placeholder="资源名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.type_id" placeholder="专区或类别" clearable class="filter-item" style="width: 130px" @change="handleTypeSelect">
+        <el-option v-for="item in listType" :key="item.type_id" :label="item.type_name" :value="item.type_id" />
       </el-select>
-      <el-select v-model="listQuery.type" placeholder="所在目录" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-select v-model="listQuery.subject_id" placeholder="学科或分类" clearable class="filter-item" style="width: 130px" @change="handleSubjectSelect">
+        <el-option v-for="item in listSubject" :key="item.subject_id" :label="item.subject_name" :value="item.subject_id" />
+      </el-select>
+      <el-select v-model="listQuery.course_name" placeholder="课程或目录" clearable class="filter-item" style="width: 130px">
+        <el-option v-for="item in listCourse" :key="item.course_id" :label="item.course_name" :value="item.course_name" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        查询
+        在 （{{ this.$route.meta.title }}）中查询
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         上传
@@ -28,44 +31,40 @@
     >
       <el-table-column label="发布时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源名称" min-width="200px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
+          <span class="link-type">{{ row.resource_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="所在目录" prop="id" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span>{{ row.course_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="学科或分类" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.subject_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="作者" width="110px" align="center">
+      <el-table-column label="类型或专区" align="center" width="95">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.type_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="访问次数" align="center" width="95">
+      <el-table-column label="查看" width="75px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type">{{ row.pageviews }}</span>
-          <span v-else>0</span>
+          <ShowResource :resource-id="row.resource_id " />
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            浏览
-          </el-button>
+      <el-table-column label="操作" align="center">
+        <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row)">
             删除
           </el-button>
         </template>
@@ -74,82 +73,139 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog title="资源浏览" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="资源类型" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+        <el-form-item label="类型或专区" prop="type">
+          <el-select v-model="temp.type_id" placeholder="专区或类别" class="filter-item" style="width: 300px" @change="handleTypeSelect">
+            <el-option v-for="item in listType" :key="item.type_id" :label="item.type_name" :value="item.type_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="发布时间" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
+        <el-form-item label="学科或分类" prop="type">
+          <el-select v-model="temp.subject_id" placeholder="学科或分类" class="filter-item" style="width: 300px" @change="handleSubjectSelect">
+            <el-option v-for="item in listSubject" :key="item.subject_id" :label="item.subject_name" :value="item.subject_id" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="资源标题" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="课程或目录" prop="type">
+          <el-select v-model="temp.course_name" filterable placeholder="课程或目录" class="filter-item" style="width: 100%" @blur="selectBlur">
+            <el-option v-for="item in listCourse" :key="item.course_name" :label="item.course_name" :value="item.course_name" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="dialogStatus=='create'" label="上传附件" prop="type">
+          <el-upload
+            ref="uploadExcel"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :limit="limitNum"
+            :auto-upload="false"
+            :before-upload="beforeUploadFile"
+            :on-change="fileChange"
+            :on-exceed="exceedFile"
+            :on-success="handleSuccess"
+            :file-list="fileList"
+            :data="temp"
+          >
+            <el-button size="small" plain>选择文件</el-button>
+          </el-upload></el-form-item>
+        <el-form-item v-if="dialogStatus=='update'" label="资源名称" prop="title">
+          <el-input v-model="temp.resource_name" />
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+          <el-input v-model="temp.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="请输入资源描述" />
         </el-form-item>
-        <el-form-item label="资源附件">
-          <span>附件列表</span>
+        <el-form-item v-if="dialogStatus=='update'" label="资源附件">
+          <div v-for=" (item,index) in temp.appendix_list" :key="index">
+            <p v-if="item!=null">
+              <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}.{{ item.filetype }}</a>
+            </p>
+          </div>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
+      <div v-if="dialogStatus=='create'" slot="footer" class="dialog-footer">
+        <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
           取消
         </el-button>
+        <el-button type="primary" @click="uploadFile">立即上传</el-button>
+      </div>
+      <div v-if="dialogStatus=='update'" slot="footer" class="dialog-footer">
+        <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
+          取消
+        </el-button>
+        <el-button type="primary" @click="dialogPvVisible = false">保存</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { getResourceList, getSubjectList, getCourseList, getTypeList, deleteResource, getDetail } from '@/api/resource'
+import { fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-
-const calendarTypeOptions = [
-  { key: '1', display_name: '信息技术类' },
-  { key: '2', display_name: '管理类' },
-  { key: '3', display_name: '机械类' },
-  { key: '4', display_name: '铁道类' }
-]
+import ShowResource from '@/components/ShowResource'
 export default {
   name: 'ResourceShow',
-  components: { Pagination },
+  components: { Pagination, ShowResource },
   directives: { waves },
+  props: {
+    type: {
+      type: String,
+      default: 'visit'
+    }
+  },
   data() {
     return {
       tableKey: 0,
+      limitNum: 5, // 同时上传文件个数的限制
       list: null,
+      listSubject: null,
+      listCourse: null,
+      listType: null,
+      fileList: [],
       total: 0,
       listLoading: true,
+      dataForm: {
+        file: ''
+      },
       listQuery: {
         page: 1,
         limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        resource_name: undefined,
+        type_id: undefined,
+        subject_id: undefined,
+        course_name: undefined,
+        description: '',
+        sort: ' upload_date desc '
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        resource_id: undefined,
+        resource_name: '',
+        type_id: '',
+        type_name: '',
+        subject_id: '',
+        subject_name: '',
+        course_id: '',
+        course_name: '',
+        upload_date: '',
+        uploader_id: '',
+        uploader_name: '',
+        description: '',
+        scan_count: 0,
+        collect_count: 0,
+        download_count: 0,
+        appendix_list: {
+          appendix_id: '',
+          filename: '',
+          filetype: '',
+          url: null
+        },
+        file: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: 'Edit',
-        create: 'Create'
+        update: '修改资源',
+        create: '上传资源'
       },
       dialogPvVisible: false,
       pvData: [],
@@ -162,41 +218,53 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      getResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      })
+      getTypeList().then(res => {
+        this.listType = res.data.items
+      })
+      this.listLoading = false
+    },
+    selectBlur(e) {
+      this.temp.course_name = e.target.value
+    },
+    handleTypeSelect() {
+      this.listSubject = null
+      this.listCourse = null
+      getSubjectList(this.listQuery.type_id).then(res => {
+        this.listSubject = res.data.items
+      })
+    },
+    handleSubjectSelect() {
+      getCourseList(this.listQuery.subject_id).then(res => {
+        this.listCourse = res.data.items
       })
     },
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
     },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        resource_name: '',
+        type_id: '',
+        type_name: '',
+        subject_id: '',
+        subject_name: '',
+        course_id: '',
+        course_name: '',
+        uploader_id: '',
+        uploader_name: '',
+        description: '',
+        scan_count: 0,
+        collect_count: 0,
+        download_count: 0
       }
     },
     handleCreate() {
-      this.resetTemp()
+      this.resetTemp() // 修改保留原始目录
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -223,7 +291,17 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      getDetail(this.temp.resource_id).then(res => {
+        this.temp = res.data // copy obj
+      })
+      // 根据编辑资源的内容，重新准备三个下拉列表的数据
+      console.log(this.listType)
+      getSubjectList(this.temp.type_id).then(res => {
+        this.listSubject = res.data.items
+      })
+      getCourseList(this.temp.subject_id).then(res => {
+        this.listCourse = res.data.items
+      })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -249,19 +327,53 @@ export default {
         }
       })
     },
-    handleDelete(row, index) {
-      this.$notify({
-        title: '删除操作',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
         this.pvData = response.data.pvData
         this.dialogPvVisible = true
+      })
+    },
+    handleDownload() {
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
+        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const data = this.formatJson(filterVal)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'table-list'
+        })
+        this.downloadLoading = false
+      })
+    },
+    handleDelete(row) {
+      this.$confirm('确认删除', '警告', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteResource(row).then(res => {
+          console.log(res.data)
+          if (res.data === 1) {
+            this.getList()
+            this.$notify({
+              title: '提示',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.$notify({
+              title: '提示',
+              message: '删除失败',
+              type: 'warning',
+              duration: 2000
+            })
+          }
+        })
+      }).catch(() => {
+        console.log(0)
       })
     },
     formatJson(filterVal) {
@@ -272,6 +384,52 @@ export default {
           return v[j]
         }
       }))
+    },
+    // 文件超出个数限制时的钩子
+    exceedFile(files, fileList) {
+      this.$notify.warning({
+        title: '警告',
+        message: `只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`
+      })
+    },
+    // 文件状态改变时的钩子
+    fileChange(file, fileList) {
+      this.dataForm.file = file.raw
+      this.temp.description = file.name.substring(0, file.name.lastIndexOf('.'))
+      this.temp.resource_name = this.temp.description
+      this.temp.upload_date = new Date(this.temp.timestamp)
+      this.temp.uploader_id = this.$store.state.user.name
+      console.log(this.$store)
+    },
+    // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUploadFile(file) {
+      /*
+      console.log('before upload')
+      console.log(file)
+      const extension = file.name.substring(file.name.lastIndexOf('.') + 1)
+      const size = file.size / 1024 / 1024
+      if (extension !== 'xlsx') {
+        this.$notify.warning({
+          title: '警告',
+          message: `只能上传Excel2017（即后缀是.xlsx）的文件`
+        })
+      }
+      if (size > 10) {
+        this.$notify.warning({
+          title: '警告',
+          message: `文件大小不得超过10M`
+        })
+      }*/
+    },
+    // 文件上传成功时的钩子
+    handleSuccess(res, file, fileList) {
+      this.$notify.success({
+        title: '成功',
+        message: `文件上传成功`
+      })
+    },
+    uploadFile() {
+      this.$refs.uploadExcel.submit()
     }
   }
 }
