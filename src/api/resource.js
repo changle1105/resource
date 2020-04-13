@@ -103,3 +103,22 @@ export function addCollect(query) {
     params: { query }
   })
 }
+export function directoryList() {
+  return request({
+    url: '/resouce/directory_list',
+    method: 'get'
+  })
+}
+export function userList() {
+  return request({
+    url: '/resouce/user_list',
+    method: 'get'
+  })
+}
+export function updateDirectory(query) {
+  return request({
+    url: '/resouce/edit_directory',
+    method: 'post',
+    params: query
+  })
+}

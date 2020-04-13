@@ -286,7 +286,61 @@ export default [
     }
   },
   {
+    url: '/resouce/directory_list',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'items|15': [
+            {
+              'ml_id': '@first',
+              'subject_id': '@id',
+              'subject_name': '@first',
+              'type_id': '@id',
+              'type_name': '@first',
+              'userlist': '@name',
+              'role': '@name'
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    url: '/resouce/user_list',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': {
+          'items|100': [
+            {
+              'user_id': '@id',
+              'user_name': '@name',
+              'dpt_id': '@id',
+              'dpt_name': '@name'
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
     url: '/resouce/addCollect',
+    type: 'post',
+    response: config => {
+    // const type = config.body
+      return {
+        'code': 20000,
+        'data': 1
+      }
+    }
+  },
+  {
+    url: '/resouce/edit_directory',
     type: 'post',
     response: config => {
     // const type = config.body
