@@ -297,7 +297,6 @@ export const asyncRoutes = [
         path: 'page',
         component: () => import('@/views/permission/page'),
         name: 'PagePermission',
-        hidden: true,
         meta: {
           title: '角色权限设定',
           roles: ['admin'] // or you can only set roles in sub nav
@@ -307,7 +306,6 @@ export const asyncRoutes = [
         path: 'directive',
         component: () => import('@/views/permission/directive'),
         name: 'DirectivePermission',
-        hidden: true,
         meta: {
           title: 'Directive Permission'
           // if do not set roles, means: this page does not require permission

@@ -287,7 +287,7 @@ export default [
   },
   {
     url: '/resouce/directory_list',
-    type: 'post',
+    type: 'get',
     response: config => {
     // const type = config.body
       return {
@@ -310,15 +310,15 @@ export default [
   },
   {
     url: '/resouce/user_list',
-    type: 'post',
+    type: 'get',
     response: config => {
     // const type = config.body
       return {
         'code': 20000,
         'data': {
-          'items|100': [
+          'items|5': [
             {
-              'user_id': '@id',
+              'user_id': 'a',
               'user_name': '@name',
               'dpt_id': '@id',
               'dpt_name': '@name'
