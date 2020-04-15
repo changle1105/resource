@@ -296,6 +296,7 @@ export const asyncRoutes = [
       {
         path: 'page',
         component: () => import('@/views/permission/page'),
+        hidden: true,
         name: 'PagePermission',
         meta: {
           title: '角色权限设定',
@@ -306,6 +307,7 @@ export const asyncRoutes = [
         path: 'directive',
         component: () => import('@/views/permission/directive'),
         name: 'DirectivePermission',
+        hidden: true,
         meta: {
           title: 'Directive Permission'
           // if do not set roles, means: this page does not require permission
@@ -443,6 +445,7 @@ export const asyncRoutes = [
     path: '/excel',
     component: Layout,
     redirect: '/excel/export-excel',
+    hidden: true,
     name: 'Excel',
     meta: {
       title: 'Excel',
