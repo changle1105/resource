@@ -2,13 +2,13 @@
   <el-table :data="list" border fit highlight-current-row style="width: 100%">
     <el-table-column v-loading="loading" width="180px" align="center" label="上传日期" element-loading-text="请给我点时间！">
       <template slot-scope="scope">
-        <span>{{ scope.row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+        <span>{{ scope.row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
       </template>
     </el-table-column>
 
     <el-table-column min-width="300px" label="资源名称">
       <template slot-scope="{row}">
-        <el-tag>{{ row.resource_name }}</el-tag>
+        <el-tag>{{ row.resourceName }}</el-tag>
       </template>
     </el-table-column>
 
@@ -20,25 +20,25 @@
 
     <el-table-column min-width="100px" label="学科或分类">
       <template slot-scope="{row}">
-        <el-tag>{{ row.subject_name }}</el-tag>
+        <el-tag>{{ row.subjectName }}</el-tag>
       </template>
     </el-table-column>
 
     <el-table-column width="110px" align="center" label="作者">
       <template slot-scope="scope">
-        <span>{{ scope.row.uploader_name }}</span>
+        <span>{{ scope.row.uploaderName }}</span>
       </template>
     </el-table-column>
 
-    <el-table-column align="center" label="访问次数">
+    <el-table-column align="center" label="访问/收藏">
       <template slot-scope="scope">
-        <span>{{ scope.row.scan_count }}</span>
+        <span>{{ scope.row.scanCount }}/{{ scope.row.collect_count }}</span>
       </template>
     </el-table-column>
 
     <el-table-column label="操作" align="center">
       <template slot-scope="{row}">
-        <ShowResource :resource-id="row.resource_id " />
+        <ShowResource :resource-id="row.resourceId " />
       </template>
     </el-table-column>
   </el-table>
@@ -83,7 +83,7 @@ export default {
   created() {
     console.log(111)
     if (this.listQuery.type === 'visit') {
-      this.listQuery.sort = ' visit_num  desc '
+      this.listQuery.sort = ' scan_count  desc '
     } else if (this.listQuery.type === 'collect') {
       this.listQuery.sort = ' collect_num  desc '
     } else {

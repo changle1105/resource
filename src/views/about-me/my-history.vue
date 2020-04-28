@@ -10,34 +10,39 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="浏览日期" width="150px" align="center">
+      <el-table-column label="浏览日期" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.visit_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源名称" min-width="200px">
+      <el-table-column label="资源上传日期" width="95px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.resource_name }}</span>
+          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所在目录" prop="id" align="center" width="80">
+      <el-table-column label="资源名称" min-width="150px">
         <template slot-scope="{row}">
-          <span>{{ row.course_name }}</span>
+          <span class="link-type">{{ row.resourceName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学科或分类" width="110px" align="center">
+      <el-table-column label="所在目录" prop="id" align="center" width="200px">
         <template slot-scope="{row}">
-          <span>{{ row.subject_name }}</span>
+          <span>{{ row.courseName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="类型或专区" align="center" width="95">
+      <el-table-column label="学科或分类" width="120px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.subjectName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="类型或专区" align="center" width="140px">
         <template slot-scope="{row}">
           <span>{{ row.type_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="查看" width="100px" align="center">
         <template slot-scope="{row}">
-          <ShowResource :resource-id="row.resource_id " />
+          <ShowResource :resource-id="row.resourceId " />
         </template>
       </el-table-column>
     </el-table>
@@ -63,6 +68,7 @@ export default {
   },
   data() {
     return {
+      tableKey: 0,
       limitNum: 5, // 同时上传文件个数的限制
       list: null,
       total: 0,

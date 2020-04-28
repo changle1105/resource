@@ -118,9 +118,9 @@ export default {
   methods: {
     fechData() {
       getTypeList().then(res => {
-        this.data1 = this.getArrayProps(res.data.items, 'file_number')
-        this.data2 = this.getArrayProps(res.data.items, 'visit_number')
-        this.data3 = this.getArrayProps(res.data.items, 'collect_number')
+        this.data1 = this.getArrayProps(res.data.items, 'files_num')
+        this.data2 = this.getArrayProps(res.data.items, 'visit_num')
+        this.data3 = this.getArrayProps(res.data.items, 'collect_num')
         this.colname = this.getArrayProps(res.data.items, 'type_name')
       })
     },

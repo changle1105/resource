@@ -29,24 +29,24 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="发布时间" width="150px" align="center">
+      <el-table-column label="发布时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源名称" min-width="200px">
+      <el-table-column label="资源名称" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.resource_name }}</span>
+          <span class="link-type">{{ row.resourceName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所在目录" prop="id" align="center" width="80">
+      <el-table-column label="所在目录" prop="id" align="center" width="180">
         <template slot-scope="{row}">
-          <span>{{ row.course_name }}</span>
+          <span>{{ row.courseName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学科或分类" width="110px" align="center">
+      <el-table-column label="学科或分类" width="90px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.subject_name }}</span>
+          <span>{{ row.subjectName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="类型或专区" align="center" width="95">
@@ -56,7 +56,7 @@
       </el-table-column>
       <el-table-column label="查看" width="75px" align="center">
         <template slot-scope="{row}">
-          <ShowResource :resource-id="row.resource_id " />
+          <ShowResource :resource-id="row.resourceId " />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
@@ -75,18 +75,18 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :model="temp" :rules="rules" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="类型或专区" prop="type_id">
-          <el-select v-model="temp.type_id" placeholder="专区或类别" class="filter-item" style="width: 300px" @change="handleTypeSelect">
+        <el-form-item label="类型或专区" prop="resourceType">
+          <el-select v-model="temp.resourceType" placeholder="专区或类别" class="filter-item" style="width: 300px" @change="handleDialogTypeSelect">
             <el-option v-for="item in listType" :key="item.type_id" :label="item.type_name" :value="item.type_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="学科或分类" prop="subject_id">
-          <el-select v-model="temp.subject_id" placeholder="学科或分类" class="filter-item" style="width: 300px" @change="handleSubjectSelect">
+        <el-form-item label="学科或分类" prop="subjectId">
+          <el-select v-model="temp.subjectId" placeholder="学科或分类" class="filter-item" style="width: 300px" @change="handleDialogSubjectSelect">
             <el-option v-for="item in listSubject" :key="item.subject_id" :label="item.subject_name" :value="item.subject_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="课程或目录" prop="course_name">
-          <el-select v-model="temp.course_name" filterable placeholder="课程或目录" class="filter-item" style="width: 100%" @blur="selectBlur">
+        <el-form-item label="课程或目录" prop="courseName">
+          <el-select v-model="temp.courseName" filterable allow-create placeholder="课程或目录" class="filter-item" style="width: 100%" @blur="selectBlur">
             <el-option v-for="item in listCourse" :key="item.course_name" :label="item.course_name" :value="item.course_name" />
           </el-select>
         </el-form-item>
@@ -106,7 +106,7 @@
             <el-button size="small" plain>选择文件</el-button>
           </el-upload></el-form-item>
         <el-form-item v-if="dialogStatus=='update'" label="资源名称">
-          <el-input v-model="temp.resource_name" />
+          <el-input v-model="temp.resourceName" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="temp.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="请输入资源描述" />
@@ -114,7 +114,7 @@
         <el-form-item v-if="dialogStatus=='update'" label="资源附件">
           <div v-for=" (item,index) in temp.appendix_list" :key="index">
             <p v-if="item!=null">
-              <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}.{{ item.filetype }}</a>
+              <a class="link-type" :href="item.url">{{ item.filename }}</a>
             </p>
           </div>
         </el-form-item>
@@ -173,27 +173,28 @@ export default {
         subject_id: undefined,
         course_name: undefined,
         description: '',
-        uploader_name: '',
+        uploader_id: '',
         sort: ' upload_date desc '
       },
       showReviewer: false,
       temp: {
-        resource_id: undefined,
-        resource_name: '',
-        type_id: '',
-        type_name: '',
-        subject_id: '',
-        subject_name: '',
-        course_id: '',
-        course_name: '',
-        upload_date: '',
-        uploader_id: '',
-        uploader_name: '',
+        resourceId: undefined,
+        resourceName: '',
+        typeId: '',
+        typeName: '',
+        resourceType: '',
+        subjectId: '',
+        subjectName: '',
+        courseId: '',
+        courseName: '',
+        uploadDate: '',
+        uploaderId: '',
+        uploaderName: '',
         description: '',
-        scan_count: 0,
+        scanCount: 0,
         collect_count: 0,
-        download_count: 0,
-        appendix_list: {
+        downloadCount: 0,
+        appendixList: {
           appendix_id: '',
           filename: '',
           filetype: '',
@@ -208,9 +209,9 @@ export default {
         create: '上传资源'
       },
       rules: {
-        type_id: [{ required: true, message: '请选择', trigger: 'blur' }],
-        subject_id: [{ required: true, message: '请选择', trigger: 'blur' }],
-        course_name: [{ required: true, message: '请选择', trigger: 'blur' }]
+        resourceType: [{ required: true, message: '请选择', trigger: 'blur' }],
+        subjectId: [{ required: true, message: '请选择', trigger: 'blur' }],
+        courseName: [{ required: true, message: '请选择', trigger: 'blur' }]
       },
       dialogPvVisible: false,
       pvData: [],
@@ -223,7 +224,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      this.listQuery.uploader_name = this.$store.state.user.name
+      this.listQuery.uploader_id = this.$store.state.user.name
       getResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
@@ -244,7 +245,19 @@ export default {
       })
     },
     handleSubjectSelect() {
-      getCourseList(this.listQuery.subject_id).then(res => {
+      getCourseList(this.listQuery).then(res => {
+        this.listCourse = res.data.items
+      })
+    },
+    handleDialogTypeSelect() {
+      this.listSubject = null
+      this.listCourse = null
+      getSubjectList(this.temp.resourceType).then(res => {
+        this.listSubject = res.data.items
+      })
+    },
+    handleDialogSubjectSelect() {
+      getCourseList({ type_id: this.temp.resourceType, subject_id: this.temp.subjectId }).then(res => {
         this.listCourse = res.data.items
       })
     },
@@ -279,15 +292,33 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      getDetail(this.temp.resource_id).then(res => {
+      // console.log(this.temp)
+      getDetail(this.temp.resourceId).then(res => {
+        if (res.data === null) {
+          this.$notify({
+            title: '提示',
+            message: '该资源没有附件，请删除后重新上传！',
+            type: 'success',
+            duration: 2000
+          })
+          return
+        }
         this.temp = res.data // copy obj
       })
+      if (this.temp.appendix_list === null) {
+        this.$notify({
+          title: '提示',
+          message: '该资源没有附件，请删除后重新上传！',
+          type: 'success',
+          duration: 2000
+        })
+        return
+      }
       // 根据编辑资源的内容，重新准备三个下拉列表的数据
-      console.log(this.listType)
-      getSubjectList(this.temp.type_id).then(res => {
+      getSubjectList(this.temp.resourceType).then(res => {
         this.listSubject = res.data.items
       })
-      getCourseList(this.temp.subject_id).then(res => {
+      getCourseList(this.temp.subjectId).then(res => {
         this.listCourse = res.data.items
       })
       this.dialogStatus = 'update'
@@ -297,19 +328,17 @@ export default {
       })
     },
     updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateResource(tempData).then(() => {
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '提示',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
+      const tempData = Object.assign({}, this.temp)
+      tempData.appendix_list = null
+      tempData.course_name = ''
+      updateResource(tempData).then(() => {
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '提示',
+          message: '更新成功',
+          type: 'success',
+          duration: 2000
+        })
       })
     },
     handleDownload() {
@@ -333,7 +362,6 @@ export default {
         type: 'warning'
       }).then(() => {
         deleteResource(row).then(res => {
-          console.log(res.data)
           if (res.data === 1) {
             this.getList()
             this.$notify({
@@ -378,7 +406,6 @@ export default {
       this.temp.resource_name = this.temp.description
       this.temp.upload_date = new Date(this.temp.timestamp)
       this.temp.uploader_id = this.$store.state.user.name
-      console.log(this.$store)
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
     beforeUploadFile(file) {
@@ -410,19 +437,29 @@ export default {
     uploadFile() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          // console.log(this.dataForm)
+          if (this.fileList === null || this.fileList.length === 0) {
+            this.$notify({
+              title: '提示',
+              message: '请选择上传文件',
+              type: 'warning',
+              duration: 2000
+            })
+            return
+          }
           this.temp.uploader_id = this.$store.state.name
           this.$refs.uploadExcel.submit()
+          this.$notify({
+            title: '提示',
+            message: '全部上传成功',
+            type: 'success',
+            duration: 2000
+          })
         }
       })
       this.$refs.uploadExcel.clearFiles()
       this.temp.description = ''
       this.temp.resource_name = ''
-      this.$notify({
-        title: '提示',
-        message: '全部上传成功',
-        type: 'success',
-        duration: 2000
-      })
     }
   }
 }

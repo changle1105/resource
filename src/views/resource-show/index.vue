@@ -23,35 +23,34 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="发布时间" width="150px" align="center">
+      <el-table-column label="发布时间" width="100px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源名称" min-width="200px">
+      <el-table-column label="资源名称" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="showDetail(row)">{{ row.resource_name }}</span>
+          <span class="link-type" @click="showDetail(row)">{{ row.resourceName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所在目录" prop="id" align="center" width="80">
+      <el-table-column label="所在目录" prop="id" align="center" width="200">
         <template slot-scope="{row}">
-          <span>{{ row.course_name }}</span>
+          <span>{{ row.courseName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学科或分类" width="110px" align="center">
+      <el-table-column label="学科或分类" width="100px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.subject_name }}</span>
+          <span>{{ row.subjectName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="作者" width="110px" align="center">
+      <el-table-column label="作者" width="80px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.uploader_name }}</span>
+          <span>{{ row.uploaderName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="访问次数" align="center" width="95">
+      <el-table-column label="访问/收藏" align="center" width="60">
         <template slot-scope="{row}">
-          <span v-if="row.scan_count" class="link-type">{{ row.scan_count }}</span>
-          <span v-else>0</span>
+          <span>{{ row.scanCount }}/{{ row.collect_count }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
@@ -66,7 +65,7 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
-      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect(tem)">我要收藏</a>）</aside>
+      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect(temp)">我要收藏</a>）</aside>
 
       <div v-for=" (item,index) in temp.appendix_list" :key="index">
         <p v-if="item!=null">
@@ -87,17 +86,17 @@
       </div>
       <div v-for=" (item,index) in temp.appendix_list" :key="index+50">
         <p v-if="item!=null">
-          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}.{{ item.filetype }}</a>
+          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}</a>
         </p>
       </div>
       <el-collapse>
         <el-collapse-item title="  其它信息" name="4">
-          <div>上传者：{{ temp.uploader_name }}</div>
+          <div>上传者：{{ temp.uploaderName }}</div>
           <div>类型：{{ temp.type_name }}</div>
-          <div>学科：{{ temp.subject_name }}</div>
-          <div>所属目录或者课程：{{ temp.course_name }}</div>
-          <div>上传时间：{{ temp.upload_date }}</div>
-          <div>访问次数：{{ temp.scan_count }}</div>
+          <div>学科：{{ temp.subjectname }}</div>
+          <div>所属目录或者课程：{{ temp.courseName }}</div>
+          <div>上传时间：{{ temp.uploadDate }}</div>
+          <div>访问次数：{{ temp.scanCount }}</div>
           <div>收藏次数：{{ temp.collect_count }}</div>
           <div>资源描述：{{ temp.description }}</div>
         </el-collapse-item>
@@ -106,7 +105,7 @@
         <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button class="pan-btn green-btn" @click="addCollect(tem)">
+        <el-button class="pan-btn green-btn" @click="addCollect(temp)">
           收藏
         </el-button>
       </div>
@@ -181,6 +180,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
+      this.listQuery.type_id = this.$route.meta.type_id
       getResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
@@ -193,7 +193,7 @@ export default {
     },
     handleSubjectSelect() {
       console.log(this.listQuery.subject_id)
-      getCourseList(this.listQuery.subject_id).then(res => {
+      getCourseList(this.listQuery).then(res => {
         this.listCourse = res.data.items
       })
     },
@@ -225,15 +225,25 @@ export default {
     },
     showDetail(row) {
       this.temp = Object.assign({}, row) // copy obj
-      getDetail(this.temp.resource_id).then(res => {
-        this.temp = res.data // copy obj
+      getDetail(this.temp.resourceId).then(res => {
+        if (res.data === null) {
+          this.$notify({
+            title: '提示',
+            message: '该资源不包括附件！',
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.temp = res.data // copy obj
+        }
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       console.log(this.temp)
     },
     addCollect(row) {
-      addCollect(this.temp.resource_id).then(res => {
+      console.log(row)
+      addCollect(row.resourceId).then(res => {
         if (res.data === 1) {
           this.$notify({
             title: '提示',

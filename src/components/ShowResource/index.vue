@@ -4,7 +4,7 @@
       浏览
     </el-button>
     <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
-      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect(tem)">我要收藏</a>）</aside>
+      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect()">我要收藏</a>）</aside>
 
       <div v-for=" (item,index) in temp.appendix_list" :key="index">
         <p v-if="item!=null">
@@ -25,18 +25,18 @@
       </div>
       <div v-for=" (item,index) in temp.appendix_list" :key="index+100">
         <p v-if="item!=null">
-          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}.{{ item.filetype }}</a>
+          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}</a>
         </p>
       </div>
       <el-collapse>
         <el-collapse-item title="  其它信息" name="4">
-          <div>上传者：{{ temp.uploader_name }}</div>
-          <div>类型：{{ temp.type_name }}</div>
-          <div>学科：{{ temp.subject_name }}</div>
-          <div>所属目录或者课程：{{ temp.course_name }}</div>
-          <div>上传时间：{{ temp.upload_date }}</div>
-          <div>访问次数：{{ temp.scan_count }}</div>
-          <div>收藏次数：{{ temp.collect_count }}</div>
+          <div>上传者：{{ temp.uploaderName }}</div>
+          <div>类型：{{ temp.typeName }}</div>
+          <div>学科：{{ temp.subjectName }}</div>
+          <div>所属目录或者课程：{{ temp.courseName }}</div>
+          <div>上传时间：{{ temp.uploadDate }}</div>
+          <div>访问次数：{{ temp.scanCount }}</div>
+          <div>收藏次数：{{ temp.collectCount }}</div>
           <div>资源描述：{{ temp.description }}</div>
         </el-collapse-item>
       </el-collapse>
@@ -44,7 +44,7 @@
         <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button class="pan-btn green-btn" @click="addCollect(resourceId)">
+        <el-button class="pan-btn green-btn" @click="addCollect()">
           收藏
         </el-button>
       </div>
@@ -97,18 +97,34 @@ export default {
   },
   methods: {
     showDetail() {
-      console.log(this.resourceId)
+      // console.log(this.resourceId)
       getDetail(this.resourceId).then(res => {
-        this.temp = res.data // copy obj
+        if (res.data === null) {
+          this.$notify({
+            title: '提示',
+            message: '该资源不包括附件！',
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.temp = res.data // copy obj
+        }
       })
       this.dialogFormVisible = true
     },
-    addCollect(resourceId) {
+    addCollect() {
       addCollect(this.resourceId).then(res => {
         if (res.data === 1) {
           this.$notify({
             title: '提示',
             message: '添加收藏成功',
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.$notify({
+            title: '提示',
+            message: '该资源已经在您的收藏夹中了！',
             type: 'success',
             duration: 2000
           })

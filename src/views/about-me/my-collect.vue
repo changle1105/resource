@@ -26,24 +26,29 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="发布时间" width="150px" align="center">
+      <el-table-column label="收藏时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.upload_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.collect_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源名称" min-width="200px">
+      <el-table-column label="发布时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.resource_name }}</span>
+          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所在目录" prop="id" align="center" width="80">
+      <el-table-column label="资源名称" min-width="150px">
         <template slot-scope="{row}">
-          <span>{{ row.course_name }}</span>
+          <span class="link-type">{{ row.resourceName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="所在目录" prop="id" align="center" width="180">
+        <template slot-scope="{row}">
+          <span>{{ row.courseName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="学科或分类" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.subject_name }}</span>
+          <span>{{ row.subjectName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="类型或专区" align="center" width="95">
@@ -53,7 +58,7 @@
       </el-table-column>
       <el-table-column label="查看" width="100px" align="center">
         <template slot-scope="{row}">
-          <ShowResource :resource-id="row.resource_id " />
+          <ShowResource :resource-id="row.resourceId " />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="100px">
@@ -105,6 +110,7 @@ export default {
         type_id: undefined,
         subject_id: undefined,
         course_name: undefined,
+        collect_id: '',
         description: '',
         uploader_name: '',
         sort: ' upload_date desc '
@@ -151,7 +157,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteCollect(row).then(res => {
+        deleteCollect(row.collect_id).then(res => {
           console.log(res.data)
           if (res.data === 1) {
             this.getList()
