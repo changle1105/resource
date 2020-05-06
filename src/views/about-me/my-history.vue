@@ -12,12 +12,12 @@
     >
       <el-table-column label="浏览日期" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.visit_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.visit_date }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源上传日期" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.uploadDate }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源名称" min-width="150px">

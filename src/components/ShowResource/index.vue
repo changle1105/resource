@@ -4,7 +4,7 @@
       浏览
     </el-button>
     <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
-      <aside>{{ temp.resource_name }}（<a href="#" class="link-type" @click="addCollect()">我要收藏</a>）</aside>
+      <aside>{{ temp.resourceName }}（<a href="#" class="link-type" @click="addCollect()">我要收藏</a>）</aside>
 
       <div v-for=" (item,index) in temp.appendix_list" :key="index">
         <p v-if="item!=null">

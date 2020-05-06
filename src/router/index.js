@@ -79,7 +79,7 @@ export const constantRoutes = [
         path: 'data-analyze',
         component: () => import('@/views/data-analyze/index'),
         name: 'DataAnalyze',
-        meta: { title: '资源数据分析', icon: 'dashboard', affix: true }
+        meta: { title: '资源数据分析', icon: 'chart', affix: true }
       }
     ]
   },
@@ -91,7 +91,7 @@ export const constantRoutes = [
         path: 'hot',
         component: () => import('@/views/hot/index'),
         name: 'hot',
-        meta: { title: '热门排行', icon: 'documentation', affix: true }
+        meta: { title: '热门排行', icon: 'list', affix: true }
       }
     ]
   }
@@ -110,7 +110,7 @@ export const asyncRoutes = [
     name: 'ResourceShow',
     meta: {
       title: '资源浏览',
-      icon: 'lock',
+      icon: 'eye',
       roles: ['admin', 'editor', 'teacher', 'student'] // you can set roles in root nav
     },
     children: [
@@ -204,7 +204,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/icons/index'),
         name: 'MosoTeach',
-        meta: { title: '蓝墨资源', icon: 'icon', roles: ['admin', 'editor', 'teacher', 'student'], noCache: true }
+        meta: { title: '蓝墨资源', icon: 'link', roles: ['admin', 'editor', 'teacher', 'student'], noCache: true }
       }
     ]
   },
@@ -216,7 +216,7 @@ export const asyncRoutes = [
     name: 'ResourceManage',
     meta: {
       title: '资源管理',
-      icon: 'lock',
+      icon: 'table',
       roles: ['admin', 'editor'] // you can set roles in root nav
     },
     children: [
@@ -248,7 +248,7 @@ export const asyncRoutes = [
     name: 'AboutMe',
     meta: {
       title: '与我有关',
-      icon: 'international',
+      icon: 'user',
       roles: ['admin', 'editor'] // you can set roles in root nav
     },
     children: [
@@ -256,6 +256,7 @@ export const asyncRoutes = [
         path: 'my-favorate',
         component: () => import('@/views/about-me/my-favorate'),
         name: 'MyFavorate',
+        hidden: true,
         meta: {
           title: '我的偏好',
           roles: ['admin'] // or you can only set roles in sub nav
@@ -330,7 +331,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: '学院办公自动化系统', icon: 'link' }
+        meta: { title: '学院办公自动化系统', icon: 'guide' }
       }
     ]
   },

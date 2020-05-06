@@ -31,7 +31,7 @@
     >
       <el-table-column label="发布时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.uploadDate }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源名称" min-width="150px">
@@ -64,7 +64,7 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row)">
+          <el-button size="mini" type="danger" @click="handleDelete(row)">
             删除
           </el-button>
         </template>
@@ -93,7 +93,7 @@
         <el-form-item v-if="dialogStatus=='create'" label="上传附件">
           <el-upload
             ref="uploadExcel"
-            action="http://localhost:9527/dev-api/resouce/add"
+            action=" http://localhost:8080/resource/add"
             :limit="limitNum"
             :auto-upload="false"
             :before-upload="beforeUploadFile"
@@ -105,11 +105,17 @@
           >
             <el-button size="small" plain>选择文件</el-button>
           </el-upload></el-form-item>
-        <el-form-item v-if="dialogStatus=='update'" label="资源名称">
+        <el-form-item label="资源名称" prop="resourceName">
           <el-input v-model="temp.resourceName" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="temp.description" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="请输入资源描述" />
+        </el-form-item>
+        <el-form-item v-show="false" label="作者ID">
+          <el-input v-model="temp.uploaderId" :autosize="{ minRows: 2, maxRows: 4}" :value="temp.uploaderId" type="textarea" />
+        </el-form-item>
+        <el-form-item v-show="false" label="作者名称">
+          <el-input v-model="temp.uploaderName" :autosize="{ minRows: 2, maxRows: 4}" :value="temp.uploaderName" type="textarea" />
         </el-form-item>
         <el-form-item v-if="dialogStatus=='update'" label="资源附件">
           <div v-for=" (item,index) in temp.appendix_list" :key="index">
@@ -136,9 +142,9 @@
 </template>
 
 <script>
-import { getResourceList, getSubjectList, getCourseList, getTypeList, deleteResource, getDetail, updateResource } from '@/api/resource'
+import { getMyResourceList, getSubjectList, getCourseList, getTypeList, deleteResource, getDetail, updateResource } from '@/api/resource'
+import { getInfo } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import ShowResource from '@/components/ShowResource'
 export default {
@@ -154,13 +160,15 @@ export default {
   data() {
     return {
       tableKey: 0,
-      limitNum: 5, // 同时上传文件个数的限制
+      limitNum: 1, // 同时上传文件个数的限制
       list: null,
       listSubject: null,
       listCourse: null,
       listType: null,
       fileList: [],
       total: 0,
+      temp_file: null,
+      status: 0,
       listLoading: true,
       dataForm: {
         file: ''
@@ -176,7 +184,6 @@ export default {
         uploader_id: '',
         sort: ' upload_date desc '
       },
-      showReviewer: false,
       temp: {
         resourceId: undefined,
         resourceName: '',
@@ -194,7 +201,7 @@ export default {
         scanCount: 0,
         collect_count: 0,
         downloadCount: 0,
-        appendixList: {
+        appendix_list: {
           appendix_id: '',
           filename: '',
           filetype: '',
@@ -211,21 +218,19 @@ export default {
       rules: {
         resourceType: [{ required: true, message: '请选择', trigger: 'blur' }],
         subjectId: [{ required: true, message: '请选择', trigger: 'blur' }],
-        courseName: [{ required: true, message: '请选择', trigger: 'blur' }]
+        courseName: [{ required: true, message: '请选择', trigger: 'blur' }],
+        resourceName: [{ required: true, message: '请输入资源名称', trigger: 'blur' }]
       },
-      dialogPvVisible: false,
-      pvData: [],
       downloadLoading: false
     }
   },
-  created() {
+  mounted() {
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      this.listQuery.uploader_id = this.$store.state.user.name
-      getResourceList(this.listQuery).then(response => {
+      getMyResourceList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
       })
@@ -255,6 +260,10 @@ export default {
       getSubjectList(this.temp.resourceType).then(res => {
         this.listSubject = res.data.items
       })
+      getInfo().then(response => {
+        this.temp.uploaderId = response.data.user_id
+        this.temp.uploaderName = response.data.username
+      })
     },
     handleDialogSubjectSelect() {
       getCourseList({ type_id: this.temp.resourceType, subject_id: this.temp.subjectId }).then(res => {
@@ -267,19 +276,19 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        resource_name: '',
-        type_id: '',
-        type_name: '',
-        subject_id: '',
-        subject_name: '',
-        course_id: '',
-        course_name: '',
-        uploader_id: '',
-        uploader_name: '',
+        resourceName: '',
+        typeId: '',
+        typeName: '',
+        subjectId: '',
+        subjectName: '',
+        courseId: '',
+        courseName: '',
+        uploaderId: '',
+        uploaderName: '',
         description: '',
-        scan_count: 0,
+        scanCount: 0,
         collect_count: 0,
-        download_count: 0
+        downloadCount: 0
       }
     },
     handleCreate() {
@@ -340,20 +349,12 @@ export default {
           duration: 2000
         })
       })
+      this.getList()
     },
     handleDownload() {
       this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
+      // 下载代码
+      this.downloadLoading = false
     },
     handleDelete(row) {
       this.$confirm('确认删除', '警告', {
@@ -383,15 +384,6 @@ export default {
         console.log(0)
       })
     },
-    formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
-    },
     // 文件超出个数限制时的钩子
     exceedFile(files, fileList) {
       this.$notify.warning({
@@ -403,15 +395,13 @@ export default {
     fileChange(file, fileList) {
       this.dataForm.file = file.raw
       this.temp.description = file.name.substring(0, file.name.lastIndexOf('.'))
-      this.temp.resource_name = this.temp.description
-      this.temp.upload_date = new Date(this.temp.timestamp)
-      this.temp.uploader_id = this.$store.state.user.name
+      this.temp.resourceName = this.temp.description
+      // console.log(this.temp.description)
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
     beforeUploadFile(file) {
       /*
       console.log('before upload')
-      console.log(file)
       const extension = file.name.substring(file.name.lastIndexOf('.') + 1)
       const size = file.size / 1024 / 1024
       if (extension !== 'xlsx') {
@@ -433,33 +423,20 @@ export default {
         title: '成功',
         message: `文件上传成功`
       })
+      this.temp.description = ''
+      this.temp.resourceName = ''
+      this.$refs.uploadExcel.clearFiles()
     },
     uploadFile() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          // console.log(this.dataForm)
-          if (this.fileList === null || this.fileList.length === 0) {
-            this.$notify({
-              title: '提示',
-              message: '请选择上传文件',
-              type: 'warning',
-              duration: 2000
-            })
-            return
-          }
-          this.temp.uploader_id = this.$store.state.name
+          // console.log(this.$refs.uploadExcel)
+
+          console.log(this.temp)
           this.$refs.uploadExcel.submit()
-          this.$notify({
-            title: '提示',
-            message: '全部上传成功',
-            type: 'success',
-            duration: 2000
-          })
         }
       })
-      this.$refs.uploadExcel.clearFiles()
-      this.temp.description = ''
-      this.temp.resource_name = ''
+      //
     }
   }
 }

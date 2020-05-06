@@ -25,6 +25,13 @@ export function getResourceList(query) {
     params: query
   })
 }
+export function getMyResourceList(query) {
+  return request({
+    url: '/resource/mylist',
+    method: 'post',
+    params: query
+  })
+}
 export function getManageList(query) {
   return request({
     url: '/resource/manage_list',
@@ -77,7 +84,7 @@ export function deleteResource(query) {
 }
 export function addResource(query) {
   return request({
-    url: '/resource/add',
+    url: '/resource/add2',
     method: 'post',
     params: query
   })

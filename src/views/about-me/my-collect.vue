@@ -28,12 +28,12 @@
     >
       <el-table-column label="收藏时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.collect_date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.collect_date }}</span>
         </template>
       </el-table-column>
       <el-table-column label="发布时间" width="95px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.uploadDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.uploadDate }}</span>
         </template>
       </el-table-column>
       <el-table-column label="资源名称" min-width="150px">
@@ -143,7 +143,7 @@ export default {
       })
     },
     handleSubjectSelect() {
-      getCourseList(this.listQuery.subject_id).then(res => {
+      getCourseList(this.listQuery).then(res => {
         this.listCourse = res.data.items
       })
     },

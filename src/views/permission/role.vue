@@ -3,12 +3,12 @@
     <el-table :data="directoryList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="所属模块" width="220">
         <template slot-scope="scope">
-          {{ scope.row.type_name }}
+          {{ scope.row.typeName }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="学科或者分类" width="220">
         <template slot-scope="scope">
-          {{ scope.row.subject_name }}
+          {{ scope.row.subjectName }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="用户列表">
@@ -21,7 +21,7 @@
           {{ scope.row.role }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope)">更改</el-button>
           <!--el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button!-->
@@ -36,10 +36,10 @@
       </div>
       <el-form :model="tempDirectory" label-width="180px" label-position="right">
         <el-form-item label="所属模块">
-          <span>{{ tempDirectory.type_name }}</span>
+          <span>{{ tempDirectory.typeName }}</span>
         </el-form-item>
         <el-form-item label="学科或者分类">
-          <span>{{ tempDirectory.subject_name }}</span>
+          <span>{{ tempDirectory.subjectName }}</span>
         </el-form-item>
         <el-form-item label="访问角色">
           <el-input v-model="tempDirectory.role" width="200px" />
@@ -55,13 +55,13 @@
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column
-                  label="教师姓名"
-                  prop="user_name"
-                />
-                <el-table-column
-                  prop="dpt_name"
+                  prop="dptId"
                   label="所属部门"
                   show-overflow-tooltip
+                />
+                <el-table-column
+                  label="教师姓名"
+                  prop="name"
                 />
                 <el-table-column
                   type="selection"
@@ -110,7 +110,7 @@ export default {
     getUserList() {
       userList().then(res => {
         this.userList = res.data.items
-        console.log(this.userList)
+        // console.log(this.userList)
       })
     },
     handleEdit(scope) {
@@ -121,13 +121,22 @@ export default {
     confirm() {
       var str_userList = ''
       for (var i = 0; i < this.multipleSelection.length; i++) {
-        str_userList = str_userList + this.multipleSelection[i].user_id + ','
+        str_userList = str_userList + this.multipleSelection[i].userId + ','
       }
       this.tempDirectory.userlist = str_userList
+      this.tempDirectory.userList = ''
       console.log(this.tempDirectory)
-      updateDirectory(str_userList).then(res => {
-        console.log(res.data)
+      updateDirectory(this.tempDirectory).then(res => {
+        if (res.data > 0) {
+          this.$notify({
+            title: '提示',
+            message: '修改成功！',
+            type: 'success',
+            duration: 2000
+          })
+        }
       })
+      this.dialogVisible = false
     },
     handleDelete({ $index, row }) {
       this.$confirm('如果删除目录，目录下的资源将会全部被删除，确认删除么?', 'Warning', {
@@ -159,7 +168,7 @@ export default {
       console.log('handle')
       console.log(this.userList)
       for (var i = 0; i < this.userList.length; i++) {
-        if (this.tempDirectory.userlist.indexOf(this.userList[i].user_id) >= 0) {
+        if (this.tempDirectory.userlist.indexOf(this.userList[i].userId) >= 0) {
           this.$refs.multipleTable.toggleRowSelection(this.userList[i], true)
         }
       }
