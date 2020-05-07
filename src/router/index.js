@@ -202,7 +202,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/icons/index'),
+        component: () => import('@/views/mostech/index'),
         name: 'MosoTeach',
         meta: { title: '蓝墨资源', icon: 'link', roles: ['admin', 'editor', 'teacher', 'student'], noCache: true }
       }
