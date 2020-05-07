@@ -48,7 +48,7 @@
           <div class="card-panel-text">
             蓝墨资源总数
           </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="mostechNum" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -58,6 +58,7 @@
 <script>
 import CountTo from 'vue-count-to'
 import { getStatistic } from '../../../../api/resource'
+import { getMostechStatistic } from '../../../../api/mostech'
 export default {
   components: {
     CountTo
@@ -66,7 +67,8 @@ export default {
     return {
       filesNum: 0,
       visitNum: 0,
-      collectNum: 0
+      collectNum: 0,
+      mostechNum: 0
     }
   },
   mounted() {
@@ -81,6 +83,9 @@ export default {
         this.filesNum = res.data.files_num
         this.visitNum = res.data.visit_num
         this.collectNum = res.data.collect_num
+      })
+      getMostechStatistic().then(res => {
+        this.mostechNum = res.data.items
       })
     }
   }

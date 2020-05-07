@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getStatistic() {
+export function getMostechStatistic() {
   return request({
     url: '/mostech/statistic',
     method: 'get'
