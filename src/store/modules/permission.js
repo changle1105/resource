@@ -7,7 +7,13 @@ import { asyncRoutes, constantRoutes } from '@/router'
  */
 function hasPermission(roles, route) {
   if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
+    console.log(roles)
+    var as = [roles]
+    // console.log(as)
+    var ddd = as.some(role => route.meta.roles.includes(role))
+    // var dd = route.meta.roles.some(item => roles)
+    // console.log(ddd)
+    return ddd
   } else {
     return true
   }
@@ -20,9 +26,9 @@ function hasPermission(roles, route) {
  */
 export function filterAsyncRoutes(routes, roles) {
   const res = []
-
   routes.forEach(route => {
     const tmp = { ...route }
+    console.log(tmp)
     if (hasPermission(roles, tmp)) {
       if (tmp.children) {
         tmp.children = filterAsyncRoutes(tmp.children, roles)
