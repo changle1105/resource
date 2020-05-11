@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: 'GPI Resource',
 
   /**
    * @type {boolean} true | false
