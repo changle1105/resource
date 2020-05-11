@@ -64,7 +64,7 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
+    <el-dialog title="资源信息" :visible.sync="dialogFormVisible" :before-close="closeDialog">
       <aside>{{ temp.resourceName }}（<a href="#" class="link-type" @click="addCollect(temp)">我要收藏</a>）</aside>
 
       <div v-for=" (item,index) in temp.appendix_list" :key="index">
@@ -78,7 +78,7 @@
             height="100%"
           >
             <source
-              src="https://video.xuexi.cn/video/1005/p/21e980f38db86f00f0f8b2c7877d4449-89be429986174b96b07fdc7fcc000bcc-2.mp4"
+              :src="item.url"
               type="video/mp4"
             >
           </video>
@@ -86,7 +86,7 @@
       </div>
       <div v-for=" (item,index) in temp.appendix_list" :key="index+50">
         <p v-if="item!=null">
-          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url">{{ item.filename }}</a>
+          <a v-if="item.filetype!='mp4'" class="link-type" :href="item.url" target="_blank" :download="item.filename">{{ item.filename }}</a>
         </p>
       </div>
       <el-collapse>
@@ -102,7 +102,7 @@
         </el-collapse-item>
       </el-collapse>
       <div slot="footer" class="dialog-footer">
-        <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
+        <el-button class="pan-btn blue-btn" @click="closeDialog()">
           取消
         </el-button>
         <el-button class="pan-btn green-btn" @click="addCollect(temp)">
@@ -255,6 +255,13 @@ export default {
       })
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+    },
+    closeDialog() {
+      var d = document.getElementById('myVideo')
+      if (d != null) {
+        d.pause()
+      }
+      this.dialogFormVisible = false
     },
     formatJson(filterVal) {
       return this.list.map(v => filterVal.map(j => {

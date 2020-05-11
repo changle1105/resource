@@ -47,12 +47,25 @@ service.interceptors.response.use(
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 20000) {
-      Message({
-        message: res.message || '错误',
-        type: 'error',
-        duration: 5 * 1000
-      })
-
+      if (res.code === 1999) {
+        Message({
+          message: '输入用户名密码错误',
+          type: 'error',
+          duration: 5 * 1000
+        })
+      } else if (res.code === 1998) {
+        Message({
+          message: '输入的用户名不存在',
+          type: 'error',
+          duration: 5 * 1000
+        })
+      } else {
+        Message({
+          message: res.message || '错误',
+          type: 'error',
+          duration: 5 * 1000
+        })
+      }
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
         // to re-login

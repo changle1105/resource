@@ -36,7 +36,7 @@
       </el-table-column>
       <el-table-column label="资源名称" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.resourceName }}</span>
+          <span>{{ row.resourceName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="所在目录" prop="id" align="center" width="180">
