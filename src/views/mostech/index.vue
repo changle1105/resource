@@ -80,7 +80,7 @@
             height="100%"
           >
             <source
-              src="https://video.xuexi.cn/video/1005/p/21e980f38db86f00f0f8b2c7877d4449-89be429986174b96b07fdc7fcc000bcc-2.mp4"
+              :src="temp.localFileName"
               type="video/mp4"
             >
           </video>
@@ -88,7 +88,7 @@
       </div>
       <div>
         <p>
-          <a v-if="temp.extName!='.mp4'" class="link-type" :href="temp.localFileName">{{ temp.name }}</a>
+          <a v-if="temp.extName!='.mp4'" class="link-type" :href="temp.localFileName" target="_blank" :download="temp.name">{{ temp.name }}</a>
         </p>
       </div>
       <div slot="footer" class="dialog-footer">
