@@ -11,6 +11,7 @@
           <video
             v-if="item.filetype==='mp4'"
             id="myVideo"
+            :key="item.appendixId"
             controls
             preload="auto"
             width="100%"

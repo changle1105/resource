@@ -67,13 +67,14 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog title="资源信息" :visible.sync="dialogFormVisible">
+    <el-dialog title="资源信息" :visible.sync="dialogFormVisible" :before-close="closeDialog">
       <aside>{{ temp.name }}</aside>
       <div>
         <p>
           <video
             v-if="temp.extName==='.mp4'"
             id="myVideo"
+            :key="temp.id"
             controls
             preload="auto"
             width="100%"
@@ -92,7 +93,7 @@
         </p>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button class="pan-btn blue-btn" @click="dialogFormVisible = false">
+        <el-button class="pan-btn blue-btn" @click="closeDialog()">
           取消
         </el-button>
       </div>
@@ -167,6 +168,13 @@ export default {
       this.temp = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+    },
+    closeDialog() {
+      var d = document.getElementById('myVideo')
+      if (d != null) {
+        d.pause()
+      }
+      this.dialogFormVisible = false
     }
   }
 }
